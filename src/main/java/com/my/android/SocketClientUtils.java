@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
  * Pc端与Android的通信, 通过:
@@ -19,6 +20,7 @@ public class SocketClientUtils {
 
 
     public static void main(String[] args) {
+        forwardPort();
         try {
             Socket socket = new Socket(HOST, PHONE_PORT);
             //读取服务器端数据
@@ -35,6 +37,22 @@ public class SocketClientUtils {
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
+        }
+    }
+
+    private static void forwardPort() {
+        try {
+            Process process = Runtime.getRuntime().exec("adb forward tcp:" + PHONE_PORT + " tcp:" + PHONE_PORT);
+            Scanner scanner = new Scanner(process.getErrorStream());
+            if (scanner.hasNext()) {
+                while (scanner.hasNext()) {
+                    System.out.println(scanner.next());
+                }
+                System.err.println("cannot start the Android debug bridge");
+                return;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
